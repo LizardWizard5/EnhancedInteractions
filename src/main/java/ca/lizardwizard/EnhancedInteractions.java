@@ -32,107 +32,118 @@ public class EnhancedInteractions implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
+        LOGGER.info("EnhancedInteractions: Initialized");
+        //Dispenser cauldron filling with water, powder snow, and lava buckets
+        dispenserCauldronBehavior(Items.WATER_BUCKET, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+        dispenserCauldronBehavior(Items.LAVA_BUCKET, Blocks.LAVA_CAULDRON.defaultBlockState());
+        dispenserCauldronBehavior(Items.POWDER_SNOW_BUCKET, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL,3));
+        //Dispenser:emptying cauldron with buckets and reimplementing default bucket behavior.
+        dispenserBucketCauldronBehavior(Items.WATER_BUCKET, Blocks.WATER_CAULDRON);
+        dispenserBucketCauldronBehavior(Items.LAVA_BUCKET, Blocks.LAVA_CAULDRON);
+        dispenserBucketCauldronBehavior(Items.POWDER_SNOW_BUCKET, Blocks.POWDER_SNOW_CAULDRON);
+        //Dispenser crop planting on farmland
+        dispenserCropBehavior(Items.WHEAT_SEEDS, Blocks.WHEAT.defaultBlockState());
+        dispenserCropBehavior(Items.BEETROOT_SEEDS, Blocks.BEETROOTS.defaultBlockState());
+        dispenserCropBehavior(Items.POTATO, Blocks.POTATOES.defaultBlockState());
+        dispenserCropBehavior(Items.CARROT, Blocks.CARROTS.defaultBlockState());
+        dispenserCropBehavior(Items.PUMPKIN_SEEDS, Blocks.PUMPKIN_STEM.defaultBlockState());
+        dispenserCropBehavior(Items.MELON_SEEDS, Blocks.MELON_STEM.defaultBlockState());
 
-        DispenserBlock.registerBehavior(Items.WATER_BUCKET, new DefaultDispenseItemBehavior(){
-            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
-                //Get details of block in front of dispenser
-                LevelAccessor levelAccessor = blockSource.level();
-                BlockPos blockPos = blockSource.pos().relative((Direction)blockSource.state().getValue(DispenserBlock.FACING));
-                BlockState blockState = levelAccessor.getBlockState(blockPos);
-                //If the block is a cauldrons, fill it with water and return an empty bucket
-                if(blockState.is(net.minecraft.world.level.block.Blocks.CAULDRON)) {
-                    levelAccessor.setBlock(
-                            blockPos,
-                            Blocks.WATER_CAULDRON
-                                    .defaultBlockState()
-                                    .setValue(LayeredCauldronBlock.LEVEL, 3),
-                            3
-                    );
-                    return new ItemStack(Items.BUCKET);
-                }
-                //Else, execute the default behavior of dispensing a water bucket
-                return super.execute(blockSource, stack);
-            }
-        });
-        DispenserBlock.registerBehavior(Items.LAVA_BUCKET, new DefaultDispenseItemBehavior(){
-            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
-                //Get details of block in front of dispenser
-                LevelAccessor levelAccessor = blockSource.level();
-                BlockPos blockPos = blockSource.pos().relative((Direction)blockSource.state().getValue(DispenserBlock.FACING));
-                BlockState blockState = levelAccessor.getBlockState(blockPos);
-                //If the block is a cauldrons, fill it with water and return an empty bucket
-                if(blockState.is(net.minecraft.world.level.block.Blocks.CAULDRON)) {
+        LOGGER.info("EnhancedInteractions: Dispenser behaviors registered");
 
-                    levelAccessor.setBlock(
-                            blockPos,
-                            Blocks.LAVA_CAULDRON.defaultBlockState(),
-                            3
-                    );
 
-                    return new ItemStack(Items.BUCKET);
-                }
-                //Else, execute the default behavior of dispensing a water bucket
-                return super.execute(blockSource, stack);
-            }
-        });
-        DispenserBlock.registerBehavior(Items.POWDER_SNOW_BUCKET, new DefaultDispenseItemBehavior(){
-            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
-                //Get details of block in front of dispenser
-                LevelAccessor levelAccessor = blockSource.level();
-                BlockPos blockPos = blockSource.pos().relative((Direction)blockSource.state().getValue(DispenserBlock.FACING));
-                BlockState blockState = levelAccessor.getBlockState(blockPos);
-                //If the block is a cauldrons, fill it with water and return an empty bucket
-                if(blockState.is(net.minecraft.world.level.block.Blocks.CAULDRON)) {
-                    levelAccessor.setBlock(
-                            blockPos,
-                            Blocks.POWDER_SNOW_CAULDRON
-                                    .defaultBlockState()
-                                    .setValue(LayeredCauldronBlock.LEVEL, 3),
-                            3
-                    );
-                    return new ItemStack(Items.BUCKET);
-                }
-                //Else, execute the default behavior of dispensing a water bucket
-                return super.execute(blockSource, stack);
-            }
-        });
-        DispenserBlock.registerBehavior(Items.BUCKET, new DefaultDispenseItemBehavior(){
-            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
-                //Get details of block in front of dispenser
-                LevelAccessor levelAccessor = blockSource.level();
-                BlockPos blockPos = blockSource.pos().relative((Direction)blockSource.state().getValue(DispenserBlock.FACING));
-                BlockState blockState = levelAccessor.getBlockState(blockPos);
-                //If the block is a water cauldron, empty it and return a water bucket
-                if(blockState.is(net.minecraft.world.level.block.Blocks.WATER_CAULDRON)) {
-                    levelAccessor.setBlock(
-                            blockPos,
-                            Blocks.CAULDRON.defaultBlockState(),
-                            3
-                    );
-                    return new ItemStack(Items.WATER_BUCKET);
-                }
-                //If the block is a lava cauldron, empty it and return a lava bucket
-                else if(blockState.is(net.minecraft.world.level.block.Blocks.LAVA_CAULDRON)) {
-                    levelAccessor.setBlock(
-                            blockPos,
-                            Blocks.CAULDRON.defaultBlockState(),
-                            3
-                    );
-                    return new ItemStack(Items.LAVA_BUCKET);
-                }
-                //If the block is a powder snow cauldron, empty it and return a powder snow bucket
-                else if(blockState.is(net.minecraft.world.level.block.Blocks.POWDER_SNOW_CAULDRON)) {
-                    levelAccessor.setBlock(
-                            blockPos,
-                            Blocks.CAULDRON.defaultBlockState(),
-                            3
-                    );
-                    return new ItemStack(Items.POWDER_SNOW_BUCKET);
-                }
-                //Else, execute the default behavior of dispensing an empty bucket
-                return super.execute(blockSource, stack);
-            }
-        });
-		LOGGER.info("Hello Fabric world!");
+
 	}
+
+    private static void dispenserCauldronBehavior(Item bucketItem, BlockState resultState) {
+        DispenserBlock.registerBehavior(bucketItem, new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
+                LevelAccessor level = blockSource.level();
+                BlockPos targetPos = blockSource.pos()
+                        .relative(blockSource.state().getValue(DispenserBlock.FACING));
+                BlockState targetState = level.getBlockState(targetPos);
+
+                if (targetState.is(Blocks.CAULDRON)) {
+                    level.setBlock(targetPos, resultState, 3);
+                    stack.shrink(1);
+                    return new ItemStack(Items.BUCKET);
+                }
+                else if(targetState.is(Blocks.AIR)){
+                    //Determine block.
+                    BlockState blockstate;
+                    switch (bucketItem.toString()){
+                        case "minecraft:water_bucket":
+                            blockstate= Blocks.WATER.defaultBlockState();
+                        break;
+                        case "minecraft:lava_bucket":
+                            blockstate= Blocks.LAVA.defaultBlockState();
+                        break;
+                        case "minecraft:powder_snow_bucket":
+                            blockstate = Blocks.POWDER_SNOW.defaultBlockState();
+                        break;
+                        default:
+                            blockstate = Blocks.AIR.defaultBlockState();
+                            break;
+                    }
+                    level.setBlock(targetPos, blockstate, 3);
+                    stack.shrink(1);
+                    return new ItemStack(Items.BUCKET);
+                }
+
+                return super.execute(blockSource, stack);
+            }
+        });
+    }
+
+    private static void dispenserBucketCauldronBehavior(Item returnItem, Block blockType) {
+        DispenserBlock.registerBehavior(Items.BUCKET, new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
+                LevelAccessor level = blockSource.level();
+
+                BlockPos targetPos = blockSource.pos()
+                        .relative(blockSource.state().getValue(DispenserBlock.FACING));
+                BlockState targetState = level.getBlockState(targetPos);
+                Block block = targetState.getBlock();
+                System.out.println("Target block: " + block.getName().getString() + " but we desire " + blockType.getName().getString());
+                if (targetState.is(blockType)) {
+                    System.out.println("Block must be a couldron of the correct type");
+                    level.setBlock(targetPos, Blocks.CAULDRON.defaultBlockState(), 3);
+                    stack.shrink(1);
+                    return new ItemStack(returnItem);
+                }
+                //This is to handle filling bucket from source block. This is the default behaviour with buckets and dispenser, but overriding the overall behaviour here requires rewriting that behaviour.
+                else if(targetState.is(Blocks.LAVA) || targetState.is(Blocks.WATER) || targetState.is(Blocks.POWDER_SNOW)) {
+                    level.setBlock(targetPos, Blocks.AIR.defaultBlockState(), 3);
+                    return new ItemStack(returnItem);
+                }
+
+
+                return super.execute(blockSource, stack);
+            }
+        });
+    }
+
+    private static void dispenserCropBehavior(Item seedItem, BlockState cropState) {
+        DispenserBlock.registerBehavior(seedItem, new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
+                LevelAccessor level = blockSource.level();
+                BlockPos targetPos = blockSource.pos()
+                        .relative(blockSource.state().getValue(DispenserBlock.FACING));
+                BlockState targetState = level.getBlockState(targetPos);
+
+                if (targetState.is(Blocks.FARMLAND) && level.getBlockState(targetPos.above()).isAir()) {
+                    level.setBlock(targetPos.above(), cropState, 3);
+                    stack.shrink(1);
+                    return stack;
+                }
+
+                return super.execute(blockSource, stack);
+            }
+        });
+    }
+
+
 }

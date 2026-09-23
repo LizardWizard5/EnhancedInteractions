@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Arrays;
 import java.util.List;
 
-@Mixin(net.minecraft.world.level.block.FarmBlock.class)
+@Mixin(net.minecraft.world.level.block.FarmlandBlock.class)
 public class FarmlandMixin {
     List<String > crops = Arrays.asList(
         "minecraft:wheat_seeds",
@@ -25,7 +25,7 @@ public class FarmlandMixin {
         "minecraft:melon_seeds"
     );
     @Inject(at =@At("TAIL"), method ="fallOn")
-    private void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, double d, CallbackInfo ci) {
+    private void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, double fallDistance, CallbackInfo ci) {
         if (level instanceof ServerLevel serverLevel) {//Check if level is a server level
             if(entity instanceof ItemEntity itemEntity) {//Check if the entity is an item entity
                 //Check if there is already a crop planted above the farmland, if so do nothing

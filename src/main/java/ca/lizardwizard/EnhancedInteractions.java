@@ -7,6 +7,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -48,6 +50,19 @@ public class EnhancedInteractions implements ModInitializer {
         dispenserCropBehavior(Items.CARROT, Blocks.CARROTS.defaultBlockState());
         dispenserCropBehavior(Items.PUMPKIN_SEEDS, Blocks.PUMPKIN_STEM.defaultBlockState());
         dispenserCropBehavior(Items.MELON_SEEDS, Blocks.MELON_STEM.defaultBlockState());
+        //Dispenser planting sapling on dirt/grass block
+        dispenserSaplingBehavior(Items.OAK_SAPLING, Blocks.OAK_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.SPRUCE_SAPLING, Blocks.SPRUCE_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.BIRCH_SAPLING, Blocks.BIRCH_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.JUNGLE_SAPLING, Blocks.JUNGLE_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.ACACIA_SAPLING, Blocks.ACACIA_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.CHERRY_SAPLING, Blocks.CHERRY_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.DARK_OAK_SAPLING, Blocks.DARK_OAK_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.PALE_OAK_SAPLING, Blocks.PALE_OAK_SAPLING.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.MANGROVE_PROPAGULE, Blocks.MANGROVE_PROPAGULE.defaultBlockState(), BlockTags.DIRT, BlockTags.GRASS_BLOCKS);
+        //Nether trees sapling on nylium block
+        dispenserSaplingBehavior(Items.CRIMSON_FUNGUS,Blocks.CRIMSON_FUNGUS.defaultBlockState(), BlockTags.NYLIUM,BlockTags.DIRT,BlockTags.GRASS_BLOCKS);
+        dispenserSaplingBehavior(Items.WARPED_FUNGUS,Blocks.WARPED_FUNGUS.defaultBlockState(), BlockTags.NYLIUM,BlockTags.DIRT,BlockTags.GRASS_BLOCKS);
 
         LOGGER.info("EnhancedInteractions: Dispenser behaviors registered");
 
@@ -106,9 +121,8 @@ public class EnhancedInteractions implements ModInitializer {
                         .relative(blockSource.state().getValue(DispenserBlock.FACING));
                 BlockState targetState = level.getBlockState(targetPos);
                 Block block = targetState.getBlock();
-                System.out.println("Target block: " + block.getName().getString() + " but we desire " + blockType.getName().getString());
+
                 if (targetState.is(blockType)) {
-                    System.out.println("Block must be a couldron of the correct type");
                     level.setBlock(targetPos, Blocks.CAULDRON.defaultBlockState(), 3);
                     stack.shrink(1);
                     return new ItemStack(returnItem);
@@ -138,6 +152,30 @@ public class EnhancedInteractions implements ModInitializer {
                     level.setBlock(targetPos.above(), cropState, 3);
                     stack.shrink(1);
                     return stack;
+                }
+
+                return super.execute(blockSource, stack);
+            }
+        });
+    }
+    @SafeVarargs
+    private static void dispenserSaplingBehavior(Item saplingItem, BlockState saplingState, TagKey<Block>... tags) {
+        DispenserBlock.registerBehavior(saplingItem, new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
+                LevelAccessor level = blockSource.level();
+                BlockPos forward = blockSource.pos().relative(blockSource.state().getValue(DispenserBlock.FACING));
+                BlockPos forwardDown = forward.below();
+                Block dirtBlock = level.getBlockState(forwardDown).getBlock();
+                BlockState dirtState = level.getBlockState(forwardDown);
+                if (level.getBlockState(forward).isAir()) {
+                    for (TagKey<Block> tag : tags) {
+                        if (dirtState.is(tag)) {
+                            level.setBlock(forward, saplingState, 3);
+                            stack.shrink(1);
+                            return stack;
+                        }
+                    }
                 }
 
                 return super.execute(blockSource, stack);

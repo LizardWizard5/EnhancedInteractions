@@ -7,16 +7,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +60,41 @@ public class EnhancedInteractions implements ModInitializer {
         //Nether trees sapling on nylium block
         dispenserSaplingBehavior(Items.CRIMSON_FUNGUS,Blocks.CRIMSON_FUNGUS.defaultBlockState(), BlockTags.NYLIUM,BlockTags.DIRT);
         dispenserSaplingBehavior(Items.WARPED_FUNGUS,Blocks.WARPED_FUNGUS.defaultBlockState(), BlockTags.NYLIUM,BlockTags.DIRT);
-
+        //Dispenser apply bonemeal to any bonemealable block
+        dispenserBonemealBehavior();
         LOGGER.info("EnhancedInteractions: Dispenser behaviors registered");
 
 
 
+    }
+
+    private void dispenserBonemealBehavior() {
+        Item bone_meal = Items.BONE_MEAL;
+
+        DispenserBlock.registerBehavior(bone_meal, new DefaultDispenseItemBehavior(){
+            @Override
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
+                LevelAccessor level = blockSource.level();
+                BlockPos targetPos = blockSource.pos()
+                        .relative(blockSource.state().getValue(DispenserBlock.FACING));
+                BlockState targetState = level.getBlockState(targetPos);
+                //If crop is completely grown, do regular shoot out onto ground
+                if(targetState.getBlock() instanceof CropBlock){
+                    CropBlock crop = (CropBlock) targetState.getBlock();
+                    if(crop.getAge(targetState) == crop.getMaxAge()){
+                        return super.execute(blockSource, stack);
+                    }
+
+                }
+                //The assumption behind this is that all blocks that can be Bonemeal'd are based on BonemealableBlock
+                if(targetState.getBlock() instanceof BonemealableBlock){
+                    ((BonemealableBlock) targetState.getBlock()).performBonemeal(blockSource.level(),level.getRandom(),targetPos,targetState);
+                    stack.shrink(1);
+                    return stack;
+                }
+                return super.execute(blockSource, stack);
+            }
+        });
     }
 
     private static void dispenserCauldronBehavior(Item bucketItem, BlockState resultState) {

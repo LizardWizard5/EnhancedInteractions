@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,6 +48,19 @@ public class FarmlandMixin {
                             case "minecraft:carrot" -> serverLevel.setBlock(above, net.minecraft.world.level.block.Blocks.CARROTS.defaultBlockState(), 3);
                         }
                     }
+                }
+                else if(serverLevel.getBlockState(above).getBlock() instanceof CropBlock cropBlock){
+                    if (!cropBlock.isMaxAge(serverLevel.getBlockState(above))) {
+                        int count = itemEntity.getItem().getCount();//Get the count of the item stack
+                        if(count <= 1) {//If the count is 1 or less, discard the item entity
+                            itemEntity.discard();
+                        }
+                        else {//Else reduce the count of the item stack by 1
+                            itemEntity.setItem(itemEntity.getItem().copyWithCount(itemEntity.getItem().getCount() - 1));
+                        }
+                        cropBlock.performBonemeal(serverLevel.getLevel(),level.getRandom(),above,level.getBlockState(above));
+                    }
+
                 }
 
             }

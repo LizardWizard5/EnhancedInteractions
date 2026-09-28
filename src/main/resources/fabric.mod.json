@@ -3,15 +3,15 @@
 	"id": "enhancedinteractions",
 	"version": "${version}",
 	"name": "EnhancedInteractions",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Enhanced Interactions is all about adding new interactions between vanilla block. This mod adds no new blocks/items.",
 	"authors": [
-		"Me!"
+		"LizardWizard"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/enhancedinteractions/icon.png",
 	"environment": "*",
 	"entrypoints": {

@@ -8,6 +8,16 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
+plugins {
+	id("dev.kikugie.stonecutter") version "0.9.8"
+}
 
 // Should match your modid
 rootProject.name = 'enhancedinteractions'
+
+stonecutter {
+	create(rootProject) {
+		versions("26.2", "1.21.1")
+		vcsVersion = "26.2"
+	}
+}

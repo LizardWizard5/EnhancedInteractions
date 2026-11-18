@@ -16,8 +16,12 @@ plugins {
 rootProject.name = 'enhancedinteractions'
 
 stonecutter {
-	create(rootProject) {
-		versions("26.2", "1.21.1")
-		vcsVersion = "26.2"
+	// Enable Groovy DSL, as Stonecutter uses Kotlin by default
+	kotlinController = false
+	centralScript = "build.gradle"
+
+	// Configuration goes here
+	create(getRootProject()) {
+		versions '1.21.1', '26.2'
 	}
 }

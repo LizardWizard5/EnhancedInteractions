@@ -1,9 +1,14 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	// 26.1+ is unobfuscated and uses plain Loom; older versions are obfuscated and need the remapping variant.
+	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}" apply false
 	id 'maven-publish'
 }
 
-version = "${project.mod_version}+${project.minecraft_version}"
+def unobfuscated = sc.current.parsed.matches('>=26.1')
+apply plugin: unobfuscated ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
+
+version = "${project.mod_version}+${sc.current.version}"
 //group = project.maven_group
 base.archivesName = property('mod_id') as String
 def requiredJava =
@@ -36,18 +41,28 @@ stonecutter {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${sc.current.version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	if (unobfuscated) {
+		implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+		implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	} else {
+		// Obfuscated versions need mappings, and mods must go through mod* configurations to be remapped
+		mappings loom.officialMojangMappings()
+		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	}
 }
 
 processResources {
-	def version = project.version
-	inputs.property "version", version
+	def props = [
+		"version"          : project.version,
+		"minecraft_version": sc.current.version,
+		"java_version"     : requiredJava.majorVersion,
+	]
+	inputs.properties props
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand props
 	}
 }
 

@@ -2,7 +2,11 @@ package ca.lizardwizard.mixin;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+//? if >=26.2 {
 import net.minecraft.world.entity.vehicle.minecart.MinecartHopper;
+ //?} else {
+/*import net.minecraft.world.entity.vehicle.MinecartHopper;
+*///?}
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.*;
@@ -26,7 +30,12 @@ public abstract class HopperMixin {
         if(level.getServer() == null) return;
         if(hopper instanceof MinecartHopper) return; //To balance it out, no hopper minecart
         BlockPos farmlandPos = BlockPos.containing(hopper.getLevelX(), hopper.getLevelY() + 1.0, hopper.getLevelZ());
-        if((level.getBlockState(farmlandPos).getBlock() instanceof FarmlandBlock ||level.getBlockState(farmlandPos).getBlock() instanceof SoulSandBlock )){
+        //? if >=26.2 {
+          if((level.getBlockState(farmlandPos).getBlock() instanceof FarmlandBlock ||level.getBlockState(farmlandPos).getBlock() instanceof SoulSandBlock )){
+        //?} else {
+        /*if((level.getBlockState(farmlandPos).getBlock() instanceof FarmBlock ||level.getBlockState(farmlandPos).getBlock() instanceof SoulSandBlock )){
+        *///?}
+
 
             BlockPos cropPos = farmlandPos.above();
             BlockState cropState = level.getBlockState(cropPos);

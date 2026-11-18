@@ -5,17 +5,7 @@ import ca.lizardwizard.registers.RegisterDispenserBehaviors;
 import ca.lizardwizard.registers.RegisterEntityTypes;
 import net.fabricmc.api.ModInitializer;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.dispenser.BlockSource;
-import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
